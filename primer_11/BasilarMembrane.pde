@@ -9,27 +9,25 @@ class BasilarMembrane{
   float before_wave; // 前のデータ
   
   // コンストラクタ(モデルの数,最小振動数,最大振動数,フレームレート,抵抗係数)
-  BasilarMembrane(int n, float min_eigen, float max_eigen, float frame_rate, float k){
-    this.n = n;
-    this.FRAME_RATE = frame_rate;
-    this.K = k;
-    this.EIGEN_LIST = new float[n];
-    this.resonance = new Resonance[n];
+  BasilarMembrane(int num, float min_eigen, float max_eigen, float frame_rate, float k){
+    n = num;
+    FRAME_RATE = frame_rate;
+    K = k;
+    EIGEN_LIST = new float[n];
+    resonance = new Resonance[n];
     for(int i=0; i<n; i++){
       float eigen = map(i, 0, n, min_eigen, max_eigen);
-      this.EIGEN_LIST[i] = eigen;
-      this.resonance[i] = new Resonance(eigen, frame_rate);
+      EIGEN_LIST[i] = eigen;
+      resonance[i] = new Resonance(eigen, frame_rate);
     }
-    this.before_wave = 0; // 初期化
+    before_wave = 0; // 初期化
   }
   
   void oscillate(float[] wave){
     float wave_v;
     float external;
-    float K = this.K;
-    float before_wave = this.before_wave;
     for(int i=0; i < wave.length; i++){
-      wave_v = (wave[i]-before_wave)*this.FRAME_RATE;
+      wave_v = (wave[i]-before_wave)*FRAME_RATE;
       for(int j=0; j < n; j++){
         float relative_v = resonance[j].v - wave_v;
         external = -K * pow(relative_v,2) * Math.signum(relative_v);
@@ -37,6 +35,13 @@ class BasilarMembrane{
       }
       before_wave = wave[i];
     } 
-    this.before_wave = before_wave;
+  }
+  
+  float[] mechanical_energy(){
+    float[] energy = new float[n]; // 力学的エネルギー
+    for(int i=0; i < n; i++){
+      energy[i] = resonance[i].energy();
+    }
+    return energy;
   }
 }

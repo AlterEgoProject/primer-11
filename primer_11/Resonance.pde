@@ -3,17 +3,17 @@ class Resonance{
   float x; // 位置
   float v; // 速度
   float EIGEN; // 固有周波数
-  float DELTA; // 1フレームの時間
+  float DELTA; // moveが呼ばれる時間間隔
   float K; // バネ係数
   
   // コンストラクタ(固有周波数,フレームレート,初期位置,初期速度)
-  Resonance(float eigen, float frame_rate, float x, float v){
+  Resonance(float eigen, float frame_rate, float x_init, float v_init){
     if(eigen<=0){println("error!(constructor in Resonance) : EIGEN must be positive");System.exit(0);}
-    this.x = x;
-    this.v = v;
-    this.EIGEN = eigen;
-    this.DELTA = 1./frame_rate;
-    this.K = pow(2*PI*eigen,2); // (2πf)^2
+    x = x_init;
+    v = v_init;
+    EIGEN = eigen;
+    DELTA = 1./frame_rate;
+    K = pow(2*PI*eigen,2); // (2πf)^2
   }
   // 初期の位置と速度は省略可能
   Resonance(float eigen, float frame_rate){
@@ -21,7 +21,12 @@ class Resonance{
   }
   
   void move(float external){
-    this.v += (-this.K*this.x + external) * this.DELTA; // F = 弾性力 + 外力
-    this.x += this.v * this.DELTA;
+    v += (- K * x + external) * DELTA; // F = 弾性力 + 外力
+    x += v * DELTA;
+  }
+  
+  // 力学的エネルギー
+  float energy(){
+    return pow(v,2)/2 + K*pow(x,2)/2; // 1/2*mv^2 + 1/2*kx^2
   }
 }
